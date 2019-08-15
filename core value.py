@@ -1,10 +1,12 @@
-# -*- coding=utf8 -*-
+# -*- coding=utf-8 -*-
 import os
 import logging
 import random
 from itertools import islice
 import win32con
 import win32clipboard as w
+import chardet
+import logging
 
 # 社会主义核心价值观.py ---  any text 2 core value
 ''' 
@@ -24,6 +26,8 @@ import win32clipboard as w
 LNP 2019.4.22
 -------------------------------
 '''
+
+
 # win32con 即win api常量的python实现，C/C++一般都是在windows.h内大写的宏定义
 # 采用pywin32调起系统剪贴板api
 def GetText():
@@ -76,7 +80,9 @@ def EncodeCore():
         inp = input("从文本文件(F)\n我自己输入/粘贴到控制台(P)\n读取剪贴板(R)\n直接退出(E)\n")
         if inp == "F" or inp == "f":
             FiName = input("请输入文件名(*.txt):")
-            Tfile = open(FiName)
+            with open(FiName, 'rb') as f:
+                cur_encoding = chardet.detect(f.read())['encoding']
+            Tfile = open(FiName, encoding=cur_encoding)
             tst = Tfile.read()
             Tfile.close()
             flag = False
@@ -94,7 +100,7 @@ def EncodeCore():
     outo = input("输出到文本文件(F)\n拷贝到控制台(C)\n直接打印(P)\n退出(E)\n")
     if outo == "F" or outo == "f":
         OutName = input("请键入输出文件名(*.*):")
-        Pfile = open(OutName, "w")
+        Pfile = open(OutName, "w", encoding=cur_encoding)
         Pfile.write(txtfi)
         Pfile.close()
         print("输出完成，请打开同目录下 " + OutName + " 文件查看")
@@ -141,7 +147,9 @@ def DecodeCore():
         inp = input("从文本文件(F)\n我自己输入/粘贴到控制台(P)\n读取剪贴板(R)\n直接退出(E)\n")
         if inp == "F" or inp == "f":
             FiName = input("请输入文件名(*.txt):")
-            Tfile = open(FiName)
+            with open(FiName, 'rb') as f:
+                cur_encoding = chardet.detect(f.read())['encoding']
+            Tfile = open(FiName, encoding=cur_encoding)
             tst = Tfile.read()
             Tfile.close()
             flag = False
@@ -155,11 +163,11 @@ def DecodeCore():
             exit(0)
         else:
             print("输入有误！请重新选择:")
-    txtfi = b''.join(valueDecode(tst)).decode('gbk')
+    txtfi = b''.join(valueDecode(tst)).decode(cur_encoding)
     outo = input("输出到文本文件(F)\n拷贝到控制台(C)\n直接打印(P)\n退出(E)\n")
     if outo == "F" or outo == "f":
         OutName = input("请键入输出文件名(*.*):")
-        Pfile = open(OutName, "w")
+        Pfile = open(OutName, "w", encoding=cur_encoding)
         Pfile.write(txtfi)
         Pfile.close()
         print("输出完成，请打开同目录下 " + OutName + " 文件查看")
@@ -174,6 +182,8 @@ def DecodeCore():
 
 
 if __name__ == "__main__":
+    logger = logging.getLogger("chardet")
+    logger.setLevel(logging.INFO)
     print("社会主义核心价值编码程序")
     print("提示：\n只输入文件名将会操作同目录下文件\n若要使用其他位置的文件，\n请输入绝对或相对路径再输入文件名.\n")
     while True:

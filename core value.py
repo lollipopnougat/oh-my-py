@@ -12,12 +12,11 @@ import logging
 ''' 
 -------------------------------
 
-请先安装依赖 pywin32 !
-请先安装依赖 pywin32 !!
-请先安装依赖 pywin32 !!!
+请先安装依赖 pywin32 
+顺便请确认chardet有没有安装
 
 管理员身份进入powershell 
-键入 "pip install pywin32" 
+键入 "pip install pywin32 chardet" 
 (当然前提是你得安好pip并配置好环境变量)
 
 注意！ 本脚本在python 3.7.1 版本下良好运行， 低于此版本的尚未进行测试
@@ -81,13 +80,16 @@ def duo2values(Str):
 
 def EncodeCore():
     flag = True
+    cur_encoding = ''
     while flag:
         inp = input("从文本文件(F)\n我自己输入/粘贴到控制台(P)\n读取剪贴板(R)\n直接退出(E)\n")
         if inp == "F" or inp == "f":
             FiName = input("请输入文件名(*.txt):")
             with open(FiName, 'rb') as f:
                 cur_encoding = chardet.detect(f.read())['encoding']
-            Tfile = open(FiName, encoding=cur_encoding)
+                if cur_encoding == 'GB2312':
+                    cur_encoding = 'GBK'
+            Tfile = open(FiName, 'r', encoding=cur_encoding)
             tst = Tfile.read()
             Tfile.close()
             flag = False
@@ -148,12 +150,15 @@ def valueDecode(value):
 
 def DecodeCore():
     flag = True
+    cur_encoding = ''
     while flag:
         inp = input("从文本文件(F)\n我自己输入/粘贴到控制台(P)\n读取剪贴板(R)\n直接退出(E)\n")
         if inp == "F" or inp == "f":
             FiName = input("请输入文件名(*.txt):")
             with open(FiName, 'rb') as f:
                 cur_encoding = chardet.detect(f.read())['encoding']
+                if cur_encoding == 'GB2312':
+                    cur_encoding = 'GBK'
             Tfile = open(FiName, encoding=cur_encoding)
             tst = Tfile.read()
             Tfile.close()
@@ -168,18 +173,20 @@ def DecodeCore():
             exit(0)
         else:
             print("输入有误！请重新选择:")
-    txtfi = b''.join(valueDecode(tst)).decode(cur_encoding)
-    outo = input("输出到文本文件(F)\n拷贝到控制台(C)\n直接打印(P)\n退出(E)\n")
+    #txtfi = ''.join(valueDecode(tst)).decode('utf-8')
+    #cur_encoding = chardet.detect(b''.join(valueDecode(tst)))['encoding']
+    txtfi = b''.join(valueDecode(tst))
+    outo = input("输出到文本文件(F)\n拷贝到剪贴板(C)\n直接打印(P)\n退出(E)\n")
     if outo == "F" or outo == "f":
         OutName = input("请键入输出文件名(*.*):")
         Pfile = open(OutName, "w", encoding=cur_encoding)
-        Pfile.write(txtfi)
+        Pfile.write(txtfi.decode('utf-8'))
         Pfile.close()
         print("输出完成，请打开同目录下 " + OutName + " 文件查看")
     elif outo == "P" or outo == "p":
-        print(txtfi)
+        print(txtfi.decode('utf-8'))
     elif outo == "C" or outo == "c":
-        SetText(txtfi)
+        SetText(txtfi.decode('utf-8'))
     elif outo == "E" or outo == "e":
         exit(0)
     else:

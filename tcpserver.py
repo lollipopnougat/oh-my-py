@@ -17,17 +17,17 @@ def server(ho, po):
     tcpServer.listen(10)
 
     while True:
-        print('等待连接...')
+        #print('等待连接...')
         tcpClient, addr = tcpServer.accept()
         print(addr)
 
         while True:
             data = tcpClient.recv(BUFSIZE)
-            print(data.decode())
             if not data:
-                print('---------')
+                #print('---------')
                 break
 
+            print(data.decode())
             buf = '[' + ctime() + ']' + data.decode()
             tcpClient.send(buf.encode())
 
@@ -49,5 +49,5 @@ if __name__ == "__main__":
     po = 13001
     time.sleep(0.5)
     while (True):
-        cmd = input('输入消息: ')
+        cmd = input()
         send_msg(cmd, ho, po)
